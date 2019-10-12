@@ -90,7 +90,8 @@
          if gr.right > width: direct = 3
          if gr.top < 0: direct = 0
          if gr.bottom > height: direct = 1 
-* 代码如下 
+   * 注意动画是由一系列的图片序列组成的，所以当我们移动了格子后，之前的格子不会自动消失，为了保证之前的格子会被擦除，我们会使用screen.fill(screenColor) 来覆盖原有的格子，然后再把格子画到 screen 上新的位置上，这样就可以保证我们每次都只看到一个格子。
+* 控制格子移动代码如下 
 
       # encoding: utf8
       import pygame
@@ -103,6 +104,7 @@
       width,height = 400,400 # 窗口尺寸，后面的例子中，我们格子、窗口屏幕都设置为正方形
       screen = pygame.display.set_mode((width,height)) # 初始化一个窗口, 为 Surface 对象
       pygame.display.set_caption('Snake') # 设置标题名
+      
 
       # 格子 
       # surface 对象表示图片 rect对象 表示坐标，
@@ -149,18 +151,40 @@
           if gr.right > width: direct = 3
           if gr.top < 0: direct = 0
           if gr.bottom > height: direct = 1 
-
+          screen.fill(screenColor) # 添加屏幕颜色，覆盖之前格子留下的印记。
           gr = get_nextRect(gr,direct,edge) # 生成新的坐标位置
-          screen.fill(screenColor) # 添加屏幕颜色
           screen.blit(grid, gr) # 将格子画到 gr 的位置 
           pygame.display.flip() # 使我们刚刚画到屏幕上的 格子 可见
       pygame.quit() # 退出游戏
 这就完成了控制方块移动的功能。
 ### 画格子、显示字体内容
-* 
- 
- 
+* 画格子，这里是指在屏幕上画线就成了我们看起来的格子，下面就是画线条的方法。我们是在屏幕上画线形成格子。所以第一个 Surface 对象就是 screen，然后再传入 edge: 线条间隔，width: 窗口尺寸（我们使用正方形）。然后一条条画线格子就出来。
 
-      
+      def drawGrid(surface,edge,width):
+          """根据间隔和屏幕大小画全屏幕格子
+          surface: screen 
+          """
+          rows = width // edge
+          sizeBtwn = edge
+          x,y = 0,0
+          for i in range(rows):
+              x += sizeBtwn
+              y += sizeBtwn
+              pygame.draw.line(surface,(219,112,147),(x,0),(x,width)) # (219,112,147) 表示线条颜色
+              pygame.draw.line(surface, (219,112,147),(0,y),(width,y))
+
+ 
+* 写字，代码见下。
+
+      f=pygame.font.SysFont('Arial', 30) # 选则字体及大小
+      t=f.render('Score: %s'%str(score), True, (255, 255, 255)) # 在新的 Surface 对象上画上文本
+      screen.blit(t, (20, 260)) # 将文本放置到对应的坐标
+* 以上就是 pygame 中的基本操作，我们接下来的贪吃蛇游戏，用到的方法就是上面介绍的。 
+## 创建主要角色 蛇、食物
+* 考虑的问题
+### 创建蛇，使用方向键控制移动方向（如何移动）
+
+
+
 
 
