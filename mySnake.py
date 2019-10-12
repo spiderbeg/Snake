@@ -27,12 +27,12 @@ class SnakeNibble:
             snake.append(ballrect2)
         return snake
 
-    def move(self,snake,speed):
+    def move(self,snake,direct):
         """按照方向移动 并返回更新之前 snake 的尾巴"""
         for i in range(len(snake)):
             if i==0: # 每次只更新队列第一个的方向，其他方向照旧
                 rect = snake[0].copy()
-                temp = self._get_nextRect(rect,speed)
+                temp = self._get_nextRect(rect,direct)
         snake.insert(0,temp) # 加入头部的新位置
         endPop = snake.pop() # 删除末尾
         return endPop
@@ -55,12 +55,12 @@ class SnakeNibble:
             return 1
         return 2 
 
-    def _get_nextRect(self,rect,speed):
+    def _get_nextRect(self,rect,direct):
         """蛇 获取头部的新位置"""
-        if speed[1]<0: rect.top -= self.edge
-        elif speed[1]>0: rect.top += self.edge
-        elif speed[0]>0: rect.left += self.edge
-        elif speed[0]<0: rect.left -= self.edge
+        if direct == 0: rect.top += self.edge # 向下
+        elif direct == 1: rect.top -= self.edge # 向上
+        elif direct == 2: rect.left += self.edge # 向右
+        elif direct == 3: rect.left -= self.edge # 向左
         return rect
         
  
@@ -107,7 +107,7 @@ class Background:
         pygame.time.wait(1000)
 
     def drawGrid(self,surface):
-        # 画全屏幕格子
+        # 画全屏幕格子线条
         rows = self.width // self.edge
         sizeBtwn = self.edge
         x,y = 0,0
@@ -118,7 +118,7 @@ class Background:
             pygame.draw.line(surface, (219,112,147),(0,y),(self.width,y))
 
     def drawSgrid(self,surface,rect):
-        # 画单个小格子
+        # 画单个小格子线条
         left = rect.left
         right = rect.right
         top = rect.top
@@ -147,8 +147,8 @@ def main():
     """初始化并在循环中运行直到有返回"""
     # 初始化
     pygame.init()
-    speed = [2,0] # 速度
-    oldSpeed = speed.copy() # 有效速度
+    direct = 2
+    oldDirect = direct # 有效速度
     edge = 20 # 格子大小
     width,height = 400,400 # 使用正方形
     screen = pygame.display.set_mode((width,height)) # 初始化一个窗口
@@ -186,17 +186,16 @@ def main():
             if event.type == pygame.QUIT:
                 going = False
             elif event.type == KEYDOWN:
-                if event.key == K_UP and oldSpeed[1] <= 0: speed = [0,-2] # 按了向上并且当前方向不是向下，则向上
-                elif event.key == K_DOWN and oldSpeed[1] >= 0: speed = [0,2]
-                elif event.key == K_LEFT and oldSpeed[0] <= 0: speed = [-2,0]
-                elif event.key == K_RIGHT and oldSpeed[0] >= 0: speed = [2,0]
-                elif event.key == K_0:
-                    going = False # 退出或重新开始游戏
+                if event.key == K_UP and oldDirect != 0: direct = 1 # 按了向上 1 并且当前方向不是向下 0 ，则向上
+                elif event.key == K_DOWN and oldDirect != 1: direct = 0 # 向上 1 ，向下 0
+                elif event.key == K_LEFT and oldDirect != 2: direct = 3 # 向左 3， 向右 2
+                elif event.key == K_RIGHT and oldDirect != 3: direct = 2 
+                elif event.key == K_0: going = False # 退出或重新开始游戏
                 
         if dt > runSpeed: # 控制速度
-            oldSpeed = speed.copy()
+            oldDirect = direct
             dt = 0 # 初始化时间
-            endPop = s.move(snake,speed)
+            endPop = s.move(snake,direct)
             screen.blit(grid, endPop) # 画格子
             b.drawSgrid(screen,endPop) # 画线
         else:
@@ -216,9 +215,9 @@ def main():
             b.userScore(screen,score)
             going = False
         elif clli == 1:
-            snake.append(endPop) # 吃果实
+            snake.append(endPop) # 吃果实，长身体
             score += 1
-            if not f.get_foodpos(foodr,snake): going = False # # 生成 food 新位置
+            if not f.get_foodpos(foodr,snake): going = False # 生成 food 新位置, 如果占满全屏，则退出
                 
 if __name__ == '__main__':
     while True:
