@@ -170,6 +170,7 @@ def main():
     # 分数
     scorer = grid.get_rect()
 
+    c = 0 # 计数
     dt = 0 # 计时
     score = 0 # 得分
     going = True # 状态
@@ -179,7 +180,8 @@ def main():
     while going:
         lastt = clock.tick(60) # 帧率 60
         dt += lastt # 控制显示效果
-        print('前一次的时间 %d，目前总时间 %d 单位毫秒'%(lastt,dt)) # 游戏帧率
+        c += 1
+        print('循环次数 %d, 前一次的时间 %d，目前总时间 %d 单位毫秒'%(c,lastt,dt)) # 游戏帧率
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 going = False
