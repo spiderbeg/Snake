@@ -48,10 +48,9 @@
           screen.blit(grid, gr) # 将格子画到 gr 的位置 
           pygame.display.flip() # 使我们刚刚画到屏幕上的 格子 可见
       pygame.quit() # 退出游戏
-通过这个例子你可以在淡紫色屏幕上获取一个每次启动更新位置的蓝色方形格子。首先我们需要导入相关的包。然后调用 pygame.init() 初始化相应的模块。
-方法 pygame.display.set_mode() 会创建一个图形化窗口。正如在代码注释中所写，在 Pygame 中 Surface 对象表示了图像。display.set_mode() 函数创建一个新的 Surface 对象来表示实际要显示的图像，任何你画到这个 Surface 对象的图像，都会在显示器上变得可见。pygame.display.set_caption('Snake') 会给创建的窗口命名为 Snake。这就是对于窗口的配置。
-pygame.Surface() 是生成一个相应大小、颜色的格子。grid.get_rect() 方法根据grid（Surface 对象），获取一个矩形区域 Rect 对象。在 Pygame 中可以认为 Surface 对象就像是图片，Rect 对象就是图片的一个坐标位置，只有将图片放在对应的坐标位置，图像才会出现在对应的位置。screen.blit(grid, gr) 就是将 格子 画到 gr 的位置的函数。
-所以接下来我们就要通过改变 gr（Rect 对象）的坐标来改变位置。修改矩形位置的左上角坐标(gr.left, gr.top),就完成了修改 gr 位置。
+* 通过这个例子你可以在淡紫色屏幕上获取一个每次启动更新位置的蓝色方形格子。首先我们需要导入相关的包。然后调用 pygame.init() 初始化相应的模块。方法 pygame.display.set_mode() 会创建一个图形化窗口。正如在代码注释中所写，在 Pygame 中 Surface 对象表示了图像。display.set_mode() 函数创建一个新的 Surface 对象来表示实际要显示的图像，任何你画到这个 Surface 对象的图像，都会在显示器上变得可见。pygame.display.set_caption('Snake') 会给创建的窗口命名为 Snake。这就是对于窗口的配置。
+* pygame.Surface() 是生成一个相应大小、颜色的格子。grid.get_rect() 方法根据grid（Surface 对象），获取一个矩形区域 Rect 对象。在 Pygame 中可以认为 Surface 对象就像是图片，Rect 对象就是图片的一个坐标位置，只有将图片放在对应的坐标位置，图像才会出现在对应的位置。screen.blit(grid, gr) 就是将 格子 画到 screen(Surface 对象)上 gr 的位置的函数。
+* 接下来我们就要通过改变 gr（Rect 对象）的坐标来改变位置。修改矩形位置的左上角坐标(gr.left, gr.top),就完成了修改 gr 位置。
 最后，再强调一次，对于你要显示的图像，都要使用 screen.blit() 方法将图像（Surface 对象）画到相应的坐标（Rect 对象）。在图像画好之后调用 pygame.display.flip() 就可以把我们画到屏幕上的图像变得可见。
 * 加入 pygame.event.get() 获取键盘事件，get_nextRect() 来控制格子移动.
 
