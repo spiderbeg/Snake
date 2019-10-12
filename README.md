@@ -2,8 +2,7 @@
 ## 目录部分
 1. Pygame 上手
    1. 创建方格，并移动方格位置
-   2. 绘制格子
-   3. 写字
+   2. 绘制格子，写字
 2. 创建主要角色 蛇、食物
    1. 创建蛇，使用方向键控制移动方向（如何移动）
    2. 碰撞检测（撞墙、撞自己、吃食物），以及长身体
@@ -52,7 +51,46 @@
 * pygame.Surface() 是生成一个相应大小、颜色的格子。grid.get_rect() 方法根据grid（Surface 对象），获取一个矩形区域 Rect 对象。在 Pygame 中可以认为 Surface 对象就像是图片，Rect 对象就是图片的一个坐标位置，只有将图片放在对应的坐标位置，图像才会出现在对应的位置。screen.blit(grid, gr) 就是将 格子 画到 screen(Surface 对象)上 gr 的位置的函数。
 * 接下来我们就要通过改变 gr（Rect 对象）的坐标来改变位置。修改矩形位置的左上角坐标(gr.left, gr.top),就完成了修改 gr 位置。
 最后，再强调一次，对于你要显示的图像，都要使用 screen.blit() 方法将图像（Surface 对象）画到相应的坐标（Rect 对象）。在图像画好之后调用 pygame.display.flip() 就可以把我们画到屏幕上的图像变得可见。
-* 加入 pygame.event.get() 获取键盘事件，get_nextRect() 来控制格子移动.
+* 在上面的代码中我们已经实现了每次变换位置的格子。接下来我们就要根据键盘的上下左右控制格子的移动。下面代码加入 pygame.event.get() 获取键盘事件，get_nextRect() 来控制格子移动.
+   * pygame.event.get() 会获取键盘的响应信息。在代码中是这样的。
+         
+         for event in pygame.event.get():
+              if event.type == pygame.QUIT: # 退出
+                  going = False
+              elif event.type == KEYDOWN: # 按下按键
+                  if event.key == K_UP and direct != 0:direct = 1 # 按了向上 1 并且当前方向不是向下 0 ，则向上
+                  elif event.key == K_DOWN and direct != 1:direct = 0 # 向上 1 ，向下 0
+                  elif event.key == K_LEFT and direct != 2:direct = 3 # 向左 3， 向右 2
+                  elif event.key == K_RIGHT and direct != 3:direct = 2 
+                  elif event.key == K_0:
+                          going = False # 退出游戏
+   * 简单理解就是，这一段代码可以获取键盘中你按下的方向键，然后更改 direct 值，这里 direct 代表方格运动的方向。按键含义KEYDOWN：按下按键、K_UP：方向键上、K_DOWN：方向键下、K_LEFT：方向键左、K_RIGHT：方向键右，K_0：数字 0 键。
+   * get_nextRect() 作用为将传入的 Rect 对象即坐标根据 方向（speed）,移动 sWidth 距离。意为每调用一次就将坐标向响应方向移动sWidth长度。
+   
+         def get_nextRect(rect,speed,sWidth):
+          """根据方向移动格子
+          ：param rect：格子的坐标对象；
+          ：param swidth：每次移动的距离
+          ：param speed：方向
+          ：return rect：返回新的坐标对象
+          """
+          if speed == 0: # 向下
+              rect.top += sWidth
+          elif speed == 1: # 向上
+              rect.top -= sWidth
+          elif speed == 2: # 向右
+              rect.left += sWidth
+          elif speed == 3: # 向左
+              rect.left -= sWidth
+          return rect
+   * 最后为了不让格子跑到界面外，添加了一下代码，格子到边界就朝相反方向移动。Rect 对象有自身的坐标信息，我们就依赖坐标信息与屏幕尺寸判断是否出界。
+   
+          # 判断是否出界，出界就将方向改为相反。
+         if gr.left < 0: direct = 2
+         if gr.right > width: direct = 3
+         if gr.top < 0: direct = 0
+         if gr.bottom > height: direct = 1 
+* 代码如下 
 
       # encoding: utf8
       import pygame
@@ -117,7 +155,9 @@
           screen.blit(grid, gr) # 将格子画到 gr 的位置 
           pygame.display.flip() # 使我们刚刚画到屏幕上的 格子 可见
       pygame.quit() # 退出游戏
-这就完成了控制方块移动的功能
+这就完成了控制方块移动的功能。
+### 画格子、显示字体内容
+* 
  
  
 
