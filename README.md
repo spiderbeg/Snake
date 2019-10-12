@@ -86,21 +86,21 @@
    * get_nextRect() 作用为将传入的 Rect 对象即坐标根据 方向（speed）,移动 sWidth 距离。意为每调用一次就将坐标向响应方向移动sWidth长度。
    
          def get_nextRect(rect,speed,sWidth):
-          """根据方向移动格子
-          ：param rect：格子的坐标对象；
-          ：param swidth：每次移动的距离
-          ：param speed：方向
-          ：return rect：返回新的坐标对象
-          """
-          if speed == 0: # 向下
+            """根据方向移动格子
+            ：param rect：格子的坐标对象；
+            ：param swidth：每次移动的距离
+            ：param speed：方向
+            ：return rect：返回新的坐标对象
+            """
+            if speed == 0: # 向下
               rect.top += sWidth
-          elif speed == 1: # 向上
+            elif speed == 1: # 向上
               rect.top -= sWidth
-          elif speed == 2: # 向右
+            elif speed == 2: # 向右
               rect.left += sWidth
-          elif speed == 3: # 向左
+            elif speed == 3: # 向左
               rect.left -= sWidth
-          return rect
+            return rect
    * 最后为了不让格子跑到界面外，添加了一下代码，格子到边界就朝相反方向移动。Rect 对象有自身的坐标信息，我们就依赖坐标信息与屏幕尺寸判断是否出界。
    
           # 判断是否出界，出界就将方向改为相反。
