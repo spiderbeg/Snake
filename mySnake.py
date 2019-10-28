@@ -137,7 +137,7 @@ def main(best):
     score = 0 # 得分
     going = True # 状态
     endPop = None # snake 尾巴
-    interval = 300 # 每 interval 毫秒移动 10 个像素位置。间隔越小游戏运行越快
+    interval = 300 # 每 interval 毫秒移动 10 个像素位置。速率 1/30，间隔越小游戏运行越快 #----------------------------1 移动的时间间隔，越小速度越快-------------------
     clock = pygame.time.Clock() # 创建帮助记录时间的对象
     while going:
         lastt = clock.tick(60) # 帧率 60
@@ -165,7 +165,7 @@ def main(best):
             screen.blit(s.ball, i)
         
         # 2 画线条
-        b.drawGrid(screen)
+        b.drawGrid(screen) # ------------------------------------------------------------------------------------2 若不显示格子，则注释掉这句话就行了-------------
         # 3.1 分数更新
         scoret=b.scoref.render(str(score), True, (255, 255, 255)) # 实时得分
         screen.blit(scoret, (0, 0)) # 实时分数
