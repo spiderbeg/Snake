@@ -20,7 +20,7 @@ class SnakeNibble:
         ballrect = self.ball.get_rect() # 获取 rect 对象
         a = self.edge * 5
         snake = []
-        for _ in range(3):
+        for i in range(3):
             ballrect2 = ballrect.copy() 
             ballrect2.left += a
             ballrect2.top = 100
