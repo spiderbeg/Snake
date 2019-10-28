@@ -24,11 +24,10 @@
 * 背景
    1. 与屏幕颜色相同的 Surface 对象，如黑色的格子（大小与蛇的大小相同）
    2. 画全屏的线条形成格子
-   3. 画单个格子的线条，如 pygame 的基本操作中所讲，蛇移动后 1 需要将原先蛇尾部的格子颜色如红色更新成屏幕格子颜色如黑色； 2 蛇吃果实，尾部就不变；3 食物移动后，将原先食物格子还原为屏幕的样子。步骤为，在原来的位置更新为屏幕颜色，然后画上相应的线条。就完成了单个格子大小的复原。
 * 其中的难点为蛇的移动：move()。本文的实现方法为，用列表保存蛇的身体位置（Rect 对象），当蛇移动时，只需要根据方向更新头部位置，其余位置向前
 移动一个元素。移动完后，更新蛇的身体列表。将蛇新的头部添加到列表头部，删除列表尾部元素，即原来蛇的尾部位置。如此便完成了一次移动。
 * 碰撞检测，本来若是自己写碰撞检测的话，可能还比较麻烦，但是这个事情，pygame 已经帮我们做好了。rect1.colliderect(rect2), 检测两个 Rect 对象，返回 True。则说明两个对象相撞。
-* 添加尾部，吃果实后直接在保存当前蛇身体的列表添加上一个状态蛇的身体的尾巴，就好了。
+* 添加尾部，吃果实后直接在表示蛇身体的列表尾部添加蛇上一个位置的列表中的尾部元素即蛇身体的尾巴（所以在蛇移动时，删除的列表尾部元素需要保存起来，在蛇长身体时就会用到）。
 
 ## Pygame 上手
 ### 创建方格，并移动方格位置
@@ -214,7 +213,6 @@
 * 背景
    1. 与屏幕颜色相同的 Surface 对象，如黑色的格子（大小与蛇的大小相同）
    2. 画全屏的线条形成格子
-   3. 画单个格子的线条，如 pygame 的基本操作中所讲，蛇移动后 1 需要将原先蛇尾部的格子颜色如红色更新成屏幕格子颜色如黑色； 2 蛇吃果实，尾部就不变；3 食物移动后，将原先食物格子还原为屏幕的样子。步骤为，在原来的位置更新为屏幕颜色，然后画上相应的线条。就完成了单个格子大小的复原。
 ### 创建蛇，使用方向键控制移动方向（如何移动）
 * 在不考虑食物的情况下，创建 SnakeNibble 类。实现以下方法：
    1. makeSnake() 创建三个格子大小的蛇
@@ -356,9 +354,7 @@
                   return True
 ### 创建背景
 * 上面实现一个变换位置的格子相同，具体步骤可参考上文。这里用类实现，类方法如下：
-   1. userScore() 显示得分
-   2. drawGrid() # 全屏画线，形成格子
-   3. drawSgrid() # 画单个格子的线条，1 当蛇不吃果实移动后将蛇的原来尾部画线条 2 将果实更新后原来的位置画线条
+   1. drawGrid() # 全屏画线，形成格子
 * 背景代码如下：
 
       class Background:
@@ -367,14 +363,6 @@
               self.edge = edge
               self.grid = pygame.Surface((self.edge,self.edge)) # Surface 对象
               self.scoref = pygame.font.SysFont('Arial', 20)
-
-          def userScore(self,screen,score): # 游戏结束显示文本
-              """游戏结束 时的得分显示"""
-              f=pygame.font.SysFont('Arial', 30)
-              t=f.render('Score: %s'%str(score), True, (255, 255, 255))
-              screen.blit(t, (20, 260))
-              pygame.display.update()
-              pygame.time.wait(1000)
 
           def drawGrid(self,surface):
               # 画全屏幕格子线条
@@ -387,250 +375,217 @@
                   pygame.draw.line(surface,(219,112,147),(x,0),(x,self.width))
                   pygame.draw.line(surface, (219,112,147),(0,y),(self.width,y))
 
-          def drawSgrid(self,surface,rect):
-              # 画单个小格子线条
-              left = rect.left
-              right = rect.right
-              top = rect.top
-              bottom = rect.bottom
-              pygame.draw.line(surface,(219,112,147),(left,top),(right,top))
-              pygame.draw.line(surface,(219,112,147),(left,bottom),(right,bottom))
-              pygame.draw.line(surface, (219,112,147),(left,top),(left,bottom))
-              pygame.draw.line(surface, (219,112,147),(right,top),(right,bottom))
 ## 最终完成代码
 * 在上面我们实现了所有的类，接下来我们只需要添加，完善，我们最开时写的方法就大功告成了。这里先贴代码，当然建议直接看 mySnake.py。后面再讲一讲补充的方法实现原理。
 * 增加的方法如下：
    1. 蛇：strike() 碰撞检测，本来若是自己写碰撞检测的话，可能还比较麻烦，但是这个事情，pygame 已经帮我们做好了。rect1.colliderect(rect2),返回 True 则说明两个对象相撞。
    2. 添加尾部 snake.append(endPop) 吃果实后直接在保存当前蛇身体的列表添加上一个状态蛇的身体的尾巴，就好了。
 
-* 贪吃蛇完成代码如下：
+* 贪吃蛇完成代码如下（见 **mySnake.py**）,于是一个简单的贪吃蛇就完成了：
 
-        # encoding: utf8
-        import pygame
-        from pygame.locals import *
-        import random
-        import tkinter as tk
-        import tkinter.messagebox as tkmb
+      # encoding: utf8
+      import pygame
+      from pygame.locals import *
+      import random
+      import time,sys
+      import tkinter as tk
+      import tkinter.messagebox as tkmb
 
-        # 游戏对象的类 surface:表示图片 rect: 坐标属性，
-        class SnakeNibble:
-            """移动蛇，当蛇吃果子时，身体会变大，撞墙或者撞到自己时游戏结束"""
-            def __init__(self,width=400,edge=20):
-                self.width = self.height = 400 # 屏幕尺寸
-                self.edge = edge # 身体边长
-                self.ball = pygame.Surface((edge, edge)) # Surface对象
-            
-            def makeSnake(self):
-                '''创建蛇 初始方向 右'''
-                self.ball.fill((220,20,60)) # 红色
-                ballrect = self.ball.get_rect() # 获取 rect 对象
-                a = self.edge * 5
-                snake = []
-                for _ in range(3):
-                    ballrect2 = ballrect.copy() 
-                    ballrect2.left += a
-                    ballrect2.top = 100
-                    a -= self.edge
-                    snake.append(ballrect2)
-                return snake
+      # 游戏对象的类 surface:表示图片 rect: 坐标属性，
+      class SnakeNibble:
+          """移动蛇，当蛇吃果子时，身体会变大，撞墙或者撞到自己时游戏结束"""
+          def __init__(self,width=400,edge=20):
+              self.width = self.height = 400 # 屏幕尺寸
+              self.edge = edge # 蛇的格子尺寸
+              self.ball = pygame.Surface((edge, edge)) # Surface对象
 
-            def move(self,snake,direct):
-                """按照方向移动 并返回更新之前 snake 的尾巴"""
-                for i in range(len(snake)):
-                    if i==0: # 每次只更新队列第一个的方向，其他方向照旧
-                        rect = snake[0].copy()
-                        temp = self._get_nextRect(rect,direct)
-                snake.insert(0,temp) # 加入头部的新位置
-                endPop = snake.pop() # 删除末尾
-                return endPop
+          def makeSnake(self):
+              '''创建蛇 初始方向 右'''
+              self.ball.fill((220,20,60)) # 红色
+              ballrect = self.ball.get_rect() # 获取 rect 对象
+              a = self.edge * 5
+              snake = []
+              for _ in range(3):
+                  ballrect2 = ballrect.copy() 
+                  ballrect2.left += a
+                  ballrect2.top = 100
+                  a -= self.edge
+                  snake.append(ballrect2)
+              return snake
 
-            def strike(self,snake,food):
-                '''蛇的撞击检测
-                ：param snake：蛇的 Rect 对象序列
-                ：param food：食物的 Rect 对像
-                ：return ：撞墙，撞自己返回 0,代表游戏结束,吃果子返回 1，无碰撞返回 3
-                '''
-                # 撞墙
-                if snake[0].left < 0 or snake[0].right > self.width: return 0
-                if snake[0].top < 0 or snake[0].bottom > self.height: return 0
-                # 撞自己
-                for sr in snake[1:]:
-                    if sr.colliderect(snake[0]):
-                        return 0
-                # 吃食物
-                if food.colliderect(snake[0]):
-                    return 1
-                return 2 
+          def move(self,snake,direct):
+              """按照方向移动 并返回更新之前 snake 的尾巴"""
+              for i in range(len(snake)):
+                  if i==0: # 每次只更新队列第一个的方向，其他方向照旧
+                      rect = snake[0].copy()
+                      temp = self._get_nextRect(rect,direct)
+              snake.insert(0,temp) # 加入头部的新位置
+              endPop = snake.pop() # 删除末尾
+              return endPop
 
-            def _get_nextRect(self,rect,direct):
-                """蛇 获取头部的新位置"""
-                if direct == 0: rect.top += self.edge # 向下
-                elif direct == 1: rect.top -= self.edge # 向上
-                elif direct == 2: rect.left += self.edge # 向右
-                elif direct == 3: rect.left -= self.edge # 向左
-                return rect
-                
-        
-        class Food:
-            """位置随机生成的食物"""
-            def __init__(self,width=400,edge=20):
-                self.width = self.height = 400
-                self.edge = edge
-                self.food = pygame.Surface((self.edge, self.edge)) # surface 对象
+          def strike(self,snake,food):
+              '''蛇的撞击检测
+              ：param snake：蛇的 Rect 对象序列
+              ：param food：食物的 Rect 对像
+              ：return ：撞墙，撞自己返回 0,代表游戏结束,吃果子返回 1，无碰撞返回 3
+              '''
+              # 撞墙
+              if snake[0].left < 0 or snake[0].right > self.width: return 0
+              if snake[0].top < 0 or snake[0].bottom > self.height: return 0
+              # 撞自己
+              for sr in snake[1:]:
+                  if sr.colliderect(snake[0]):
+                      return 0
+              # 吃食物
+              if food.colliderect(snake[0]):
+                  return 1
+              return 2 
 
-            def get_food(self):
-                """生成食物 rect 对象"""
-                self.food.fill((0,0,255)) # 蓝色
-                fr = self.food.get_rect() 
-                return fr
-            
-            def get_foodpos(self,food,snake):
-                '''获取食物新位置'''
-                while True:
-                    food.left, food.top = random.randrange(self.edge,self.height,self.edge),random.randrange(self.edge,self.height,self.edge) # 更新 fr 的位置
-                    foodpos = True
-                    for sn in snake: # 食物更新位置不能在蛇的身体内部
-                        if food.colliderect(sn):
-                            foodpos = False
-                            break
-                    if foodpos == True:
-                        break
-                if foodpos == True: # 有位置
-                    return True
+          def _get_nextRect(self,rect,direct):
+              """蛇 获取头部的新位置"""
+              if direct == 0: rect.top += self.edge # 向下
+              elif direct == 1: rect.top -= self.edge # 向上
+              elif direct == 2: rect.left += self.edge # 向右
+              elif direct == 3: rect.left -= self.edge # 向左
+              return rect
 
-        class Background:
-            def __init__(self,width=400,edge=20):
-                self.width = self.height = 400
-                self.edge = edge
-                self.grid = pygame.Surface((self.edge,self.edge)) # Surface 对象
-                self.scoref = pygame.font.SysFont('Arial', 20)
 
-            def userScore(self,screen,score): # 游戏结束显示文本
-                """游戏结束 时的得分显示"""
-                f=pygame.font.SysFont('Arial', 30)
-                t=f.render('Score: %s'%str(score), True, (255, 255, 255))
-                screen.blit(t, (20, 260))
-                pygame.display.update()
-                pygame.time.wait(1000)
+      class Food:
+          """位置随机生成的食物"""
+          def __init__(self,width=400,edge=20):
+              self.width = self.height = 400
+              self.edge = edge
+              self.food = pygame.Surface((self.edge, self.edge)) # surface 对象
 
-            def drawGrid(self,surface):
-                # 画全屏幕格子线条
-                rows = self.width // self.edge
-                sizeBtwn = self.edge
-                x,y = 0,0
-                for _ in range(rows):
-                    x += sizeBtwn
-                    y += sizeBtwn
-                    pygame.draw.line(surface,(219,112,147),(x,0),(x,self.width))
-                    pygame.draw.line(surface, (219,112,147),(0,y),(self.width,y))
+          def get_food(self):
+              """生成食物 rect 对象"""
+              self.food.fill((0,0,255)) # 蓝色
+              fr = self.food.get_rect() 
+              return fr
 
-            def drawSgrid(self,surface,rect):
-                # 画单个小格子线条
-                left = rect.left
-                right = rect.right
-                top = rect.top
-                bottom = rect.bottom
-                pygame.draw.line(surface,(219,112,147),(left,top),(right,top))
-                pygame.draw.line(surface,(219,112,147),(left,bottom),(right,bottom))
-                pygame.draw.line(surface, (219,112,147),(left,top),(left,bottom))
-                pygame.draw.line(surface, (219,112,147),(right,top),(right,bottom))
+          def get_foodpos(self,food,snake):
+              '''获取食物新位置'''
+              while True:
+                  food.left, food.top = random.randrange(self.edge,self.height,self.edge),random.randrange(self.edge,self.height,self.edge) # 更新 fr 的位置
+                  foodpos = True
+                  for sn in snake: # 食物更新位置不能在蛇的身体内部
+                      if food.colliderect(sn):
+                          foodpos = False
+                          break
+                  if foodpos == True:
+                      break
+              if foodpos == True: # 有位置
+                  return True
 
-        def message_box():
-            """跳出信息框，决定退出还是重新开始游戏"""
-            root  = tk.Tk()
-            root.attributes('-topmost', True)
-            root.withdraw()
-            response = tkmb.askyesno('Snake', '是 退出，否 重新开始游戏')
-            try:
-                root.destroy()
-            except:
-                pass
-            if response:
-                return True
-            else:
-                return False
+      class Background:
+          def __init__(self,width=400,edge=20):
+              self.width = self.height = 400
+              self.edge = edge
+              self.scoref = pygame.font.SysFont('Arial', 30) # 字体对象
 
-        def main():
-            """初始化并在循环中运行直到有返回"""
-            # 初始化
-            pygame.init()
-            direct = 2
-            oldDirect = direct # 有效速度
-            edge = 20 # 格子大小
-            width,height = 400,400 # 使用正方形
-            screen = pygame.display.set_mode((width,height)) # 初始化一个窗口
-            pygame.display.set_caption('Snake')
-            
-            # 对象准备
-            # 蛇
-            s = SnakeNibble(width,edge) # 身体尺寸=格子尺寸
-            snake = s.makeSnake() # 创建蛇 生成 rect 序列
-            # 食物
-            f = Food(width,edge) # 身体尺寸=格子尺寸
-            foodr = f.get_food() # 生成 rect 对象
-            f.get_foodpos(foodr,snake) # 随机生成食物位置
-            # 格子
-            b = Background(width,edge)
-            grid = b.grid 
-            scoref = b.scoref
-            b.drawGrid(screen)
-            # 分数
-            scorer = grid.get_rect()
+          def drawGrid(self,surface):
+              # 画全屏幕格子线条
+              rows = self.width // self.edge
+              sizeBtwn = self.edge
+              x,y = 0,0
+              for _ in range(rows):
+                  x += sizeBtwn
+                  y += sizeBtwn
+                  pygame.draw.line(surface,(219,112,147),(x,0),(x,self.width))
+                  pygame.draw.line(surface, (219,112,147),(0,y),(self.width,y))
 
-            c = 0 # 计数
-            dt = 0 # 计时
-            score = 0 # 得分
-            going = True # 状态
-            endPop = None # snake 尾巴
-            runSpeed = 300 # 每 runSpeed 毫秒移动 10 个像素位置。游戏速率越小游戏运行越快
-            clock = pygame.time.Clock() # 创建帮助记录时间的对象
-            while going:
-                lastt = clock.tick(60) # 帧率 60
-                dt += lastt # 控制显示效果
-                c += 1
-                print('循环次数 %d, 前一次的时间 %d，目前总时间 %d 单位毫秒'%(c,lastt,dt)) # 游戏帧率
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        going = False
-                    elif event.type == KEYDOWN:
-                        if event.key == K_UP and oldDirect != 0: direct = 1 # 按了向上 1 并且当前方向不是向下 0 ，则向上
-                        elif event.key == K_DOWN and oldDirect != 1: direct = 0 # 向上 1 ，向下 0
-                        elif event.key == K_LEFT and oldDirect != 2: direct = 3 # 向左 3， 向右 2
-                        elif event.key == K_RIGHT and oldDirect != 3: direct = 2 
-                        elif event.key == K_0: going = False # 退出或重新开始游戏
-                        
-                if dt > runSpeed: # 控制速度
-                    oldDirect = direct
-                    dt = 0 # 初始化时间
-                    endPop = s.move(snake,direct)
-                    screen.blit(grid, endPop) # 画格子
-                    b.drawSgrid(screen,endPop) # 画线
-                else:
-                    for i in range(len(snake)):
-                        screen.blit(s.ball, snake[i])
-                # 分数更新
-                screen.blit(grid, scorer) # 画图
-                b.drawSgrid(screen,scorer)  # 画线
-                scoret=scoref.render(str(score), True, (255, 255, 255)) # 得分记录
-                screen.blit(scoret, (0, 0)) # 记录
-                screen.blit(f.food, foodr) # 根据 fr(Rect 对象) 更新 food(Surface 对象) 位置 ，绘图
-                pygame.display.flip() # 显示图形
-                # 判断是否右撞击存在
-                # 撞墙 撞自己
-                clli = s.strike(snake,foodr)
-                if clli == 0:
-                    b.userScore(screen,score)
-                    going = False
-                elif clli == 1:
-                    snake.append(endPop) # 吃果实，长身体
-                    score += 1
-                    if not f.get_foodpos(foodr,snake): going = False # 生成 food 新位置, 如果占满全屏，则退出
-                        
-        if __name__ == '__main__':
-            while True:
-                main()
-                if message_box():
-                    break
+      def main(best):
+          """初始化并在循环中运行直到有返回"""
+          # 初始化
+          pygame.init()
+          direct = 2 # 初始方向 右. 向上 1，向下 0，向左 3，向右 2
+          validDirect = direct # 有效速度
+          edge = 20 # 格子尺寸
+          black = 0,0,0 # 背景颜色
+          width,height = 400,400 # 窗口尺寸
+          screen = pygame.display.set_mode((width,height)) # 初始化一个窗口
+          pygame.display.set_caption('Snake')
+
+          # 对象准备
+          # 蛇
+          s = SnakeNibble(width,edge) # 蛇身体尺寸=格子尺寸
+          snake = s.makeSnake() # 创建蛇 生成 rect 序列
+          # 食物
+          f = Food(width,edge) # 食物格子尺寸=格子尺寸
+          foodr = f.get_food() # 生成 rect 对象
+          f.get_foodpos(foodr,snake) # 随机生成食物位置
+          # 格子
+          b = Background(width,edge)
+
+          c = 0 # 计数
+          dt = 0 # 计时
+          score = 0 # 得分
+          going = True # 状态
+          endPop = None # snake 尾巴
+          interval = 300 # 每 interval 毫秒移动 10 个像素位置。间隔越小游戏运行越快
+          clock = pygame.time.Clock() # 创建帮助记录时间的对象
+          while going:
+              lastt = clock.tick(60) # 帧率 60
+              dt += lastt # 累计时间
+              c += 1
+              print('循环次数 %d, 前一次的时间 %d，目前总时间 %d 单位毫秒'%(c,lastt,dt)) # 游戏帧率
+              # 0 键盘按压等事件响应
+              for event in pygame.event.get():
+                  if event.type == pygame.QUIT: sys.exit()
+                  elif event.type == KEYDOWN:
+                      if event.key == K_UP and validDirect != 0: direct = 1 # 按了向上 1 并且当前方向不是向下 0 ，则向上
+                      elif event.key == K_DOWN and validDirect != 1: direct = 0 # 向上 1 ，向下 0
+                      elif event.key == K_LEFT and validDirect != 2: direct = 3 # 向左 3， 向右 2
+                      elif event.key == K_RIGHT and validDirect != 3: direct = 2 
+
+              # 0.1 画全屏的黑色背景
+              screen.fill(black)
+              # 1 判断是否移动
+              if dt > interval: # 移动的时间间隔
+                  validDirect = direct
+                  dt = 0 # 初始化时间
+                  endPop = s.move(snake,direct)
+              # 1.1 画蛇
+              for i in snake:
+                  screen.blit(s.ball, i)
+
+              # 2 画线条
+              b.drawGrid(screen)
+              # 3.1 分数更新
+              scoret=b.scoref.render(str(score), True, (255, 255, 255)) # 实时得分
+              screen.blit(scoret, (0, 0)) # 实时分数
+              scoret2=b.scoref.render('best:'+str(best), True, (255, 255, 255)) # 最佳得分
+              screen.blit(scoret2, (width-6*edge, 0)) # 最佳分数
+              # 3.2 食物
+              screen.blit(f.food, foodr) # 根据 fr(Rect 对象) 更新 food(Surface 对象) 位置 ，绘图
+              # 4 判断撞击
+              clli = s.strike(snake,foodr)
+              if clli == 0: # 撞墙 撞自己
+                  going = False
+              elif clli == 1: # 吃果实
+                  snake.append(endPop) # 长尾巴
+                  score += 1
+                  if not f.get_foodpos(foodr,snake): going = False # 生成 food 新位置, 如果占满全屏，则退出
+              # 5 屏幕刷新
+              pygame.display.flip() # 显示图形
+
+          # 游戏最佳记录
+          if score > best:
+              return score
+          else:
+              return best
+
+      if __name__ == '__main__':
+          best = 0 # 本次游戏的最佳分数
+          while True:
+              best = main(best) 
+              time.sleep(1)
+
+
+
+
+
+
 
 
 
