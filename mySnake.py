@@ -3,8 +3,6 @@ import pygame
 from pygame.locals import *
 import random
 import time,sys
-import tkinter as tk
-import tkinter.messagebox as tkmb
 
 # 游戏对象的类 surface:表示图片 rect: 坐标属性，
 class SnakeNibble:
